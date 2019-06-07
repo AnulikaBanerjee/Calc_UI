@@ -9,30 +9,23 @@ import { SocketService } from "./socket.service";
 export class AppComponent implements OnInit, OnDestroy {
 
     public messages: Array<any>;
-    public chatBox: string;
+    public calcTextBox: string;
 
     public constructor(private socket: SocketService) {
         this.messages = [];
-        this.chatBox = "";
+        this.calcTextBox = "";
     }
 
     public ngOnInit() {
         this.socket.getEventListener().subscribe(event => {
             if(event.type == "message") {
                 let data = event.data.content;
-                if(event.data.sender) {
-                    data = event.data.sender + ": " + data;
-                }
-                this.messages.push(data);
+
+                this.messages.unshift(data);
             }
-            if(event.type == "close") {
-                this.messages.push("/The socket connection has been closed");
-            }
-            if(event.type == "open") {
-                this.messages.push("/The socket connection has been established");
-            }
+
             if(this.messages.length > 10) {
-                this.messages.shift();
+                this.messages.pop();
             }
         });
     }
@@ -43,9 +36,9 @@ export class AppComponent implements OnInit, OnDestroy {
     }
 
     public send() {
-        if(this.chatBox) {
-            this.socket.send(this.chatBox);
-            this.chatBox = "";
+        if(this.calcTextBox) {
+            this.socket.send(this.calcTextBox);
+            this.calcTextBox = "";
         }
     }
 
